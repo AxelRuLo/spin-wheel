@@ -1,0 +1,79 @@
+import { Users, UserCheck, Loader } from 'lucide-react';
+
+function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+        <p className="text-gray-600">Loading people...</p>
+      </div>
+    );
+  }
+
+  if (people.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Users className="w-16 h-16 text-gray-300 mb-4" />
+        <p className="text-gray-600 text-center">
+          No people found. Add people to the 'people' collection in Firestore.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        <Users className="w-6 h-6 text-purple-600" />
+        <h2 className="text-2xl font-bold text-gray-800">Select a Person</h2>
+      </div>
+      
+      <p className="text-gray-600 mb-4 text-sm">
+        Choose someone to spin the wheel
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {people.map((person) => (
+          <button
+            key={person.id}
+            onClick={() => onSelectPerson(person)}
+            className={`
+              flex items-center gap-3 p-4 rounded-lg border-2 transition-all
+              ${
+                selectedPerson?.id === person.id
+                  ? 'border-purple-600 bg-purple-50 shadow-md'
+                  : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+              }
+            `}
+          >
+            {selectedPerson?.id === person.id ? (
+              <UserCheck className="w-5 h-5 text-purple-600 flex-shrink-0" />
+            ) : (
+              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
+            )}
+            <span className={`
+              font-medium text-left
+              ${
+                selectedPerson?.id === person.id
+                  ? 'text-purple-700'
+                  : 'text-gray-700'
+              }
+            `}>
+              {person.name}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {selectedPerson && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-800 text-sm font-medium">
+            ✓ Selected: {selectedPerson.name}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default PersonSelector;
