@@ -21,19 +21,34 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
     );
   }
 
+  const availablePeople = people.filter(person => !person.yaGiro);
+
+  if (availablePeople.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Users className="w-16 h-16 text-green-400 mb-4" />
+        <p className="text-green-600 text-center font-semibold">
+          ¡Todas las personas ya han girado la ruleta! 🎉
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-6 h-6 text-purple-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Selecciona una Persona</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Selecciona quien eres</h2>
       </div>
       
       <p className="text-gray-600 mb-4 text-sm">
-        Elige a alguien para girar la ruleta
+        Eligete para girar la ruleta
+        <br />
+        Despues ve hasta abajo para girarla
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {people.map((person) => (
+        {availablePeople.map((person) => (
           <button
             key={person.id}
             onClick={() => onSelectPerson(person)}
