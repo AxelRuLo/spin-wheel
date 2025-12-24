@@ -7,8 +7,8 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
   const [result, setResult] = useState(null);
   const wheelRef = useRef(null);
 
-  // Define 8 distinct colors for the segments
-  const colors = [
+  // Define base colors for segments (will be used cyclically)
+  const baseColors = [
     '#FF6B6B', // Red
     '#4ECDC4', // Teal
     '#45B7D1', // Blue
@@ -19,28 +19,47 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
     '#85C1E2', // Sky Blue
   ];
 
+  // Build the display list of prizes. If a person is selected, append them as an extra prize
+  const displayPrizes = selectedPerson ? [...prizes, `👤 ${selectedPerson.name}`] : prizes;
+
+  // Helper to get a color for a segment index. Person segment (last) gets a special color.
+  const getColor = (index) => {
+    if (selectedPerson && index === displayPrizes.length - 1) {
+      // Highlight the person with a distinct gradient-friendly color
+      return '#6C5CE7'; // purple
+    }
+    return baseColors[index % baseColors.length];
+  };
+
   const handleSpin = () => {
     if (isSpinning || !selectedPerson) return;
 
     setIsSpinning(true);
     setResult(null);
 
-    // Calculate random rotation (5-10 full rotations plus random angle)
-    const minRotation = 1800; // 5 full rotations
-    const maxRotation = 3600; // 10 full rotations
-    const randomRotation = Math.floor(Math.random() * (maxRotation - minRotation + 1)) + minRotation;
-    const randomAngle = Math.floor(Math.random() * 360);
-    const totalRotation = rotation + randomRotation + randomAngle;
+  // Calculate random rotation (5-10 full rotations plus random angle)
+  const minRotation = 1800; // 5 full rotations
+  const maxRotation = 3600; // 10 full rotations
+  const randomRotation = Math.floor(Math.random() * (maxRotation - minRotation + 1)) + minRotation;
+  const randomAngle = Math.floor(Math.random() * 360);
+  const totalRotation = rotation + randomRotation + randomAngle;
 
     setRotation(totalRotation);
 
     // Wait for animation to complete
     setTimeout(() => {
-      // Calculate winning segment
-      const segmentAngle = 360 / prizes.length;
+      // Calculate winning segment using the display prizes (may include selected person)
+      const segmentAngle = 360 / displayPrizes.length;
       const normalizedRotation = totalRotation % 360;
-      const winningIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % prizes.length;
-      const winningPrize = prizes[winningIndex];
+      let winningIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % displayPrizes.length;
+      let winningPrize = displayPrizes[winningIndex];
+
+      // If the winner is the selected person, pick a random prize from the base prizes instead
+      if (selectedPerson && winningPrize === `👤 ${selectedPerson.name}`) {
+        const randomPrizeIndex = Math.floor(Math.random() * prizes.length);
+        winningPrize = prizes[randomPrizeIndex];
+        console.log(`Person segment landed, but reassigned to: ${winningPrize}`);
+      }
 
       setResult(winningPrize);
       setIsSpinning(false);
@@ -83,9 +102,9 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
               transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
             }}
           >
-            {/* Wheel Segments */}
-            {prizes.map((prize, index) => {
-              const segmentAngle = 360 / prizes.length;
+            {/* Wheel Segments (uses displayPrizes which may include the selected person) */}
+            {displayPrizes.map((prize, index) => {
+              const segmentAngle = 360 / displayPrizes.length;
               const startAngle = index * segmentAngle;
               
               return (
@@ -100,13 +119,15 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
                   <div
                     className="w-full h-full flex items-start justify-center pt-8"
                     style={{
-                      backgroundColor: colors[index % colors.length],
+                      backgroundColor: getColor(index),
                     }}
                   >
                     <span
                       className="text-white font-bold text-sm"
                       style={{
                         transform: `rotate(${segmentAngle / 2}deg)`,
+                        maxWidth: '70px',
+                        textAlign: 'center',
                       }}
                     >
                       {prize}

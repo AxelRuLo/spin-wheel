@@ -4,6 +4,28 @@ import { db } from './firebase';
 import PersonSelector from './components/PersonSelector';
 import SpinWheel from './components/SpinWheel';
 
+// Import images
+import axelImg from './img/axel.jpeg';
+import karlaImg from './img/karla.jpeg';
+import adyImg from './img/ady.jpeg';
+import andreaImg from './img/andy.jpeg';
+import mayiImg from './img/mayi.jpeg';
+import kenImg from './img/ken.jpeg';
+import tavoImg from './img/tavo.jpeg';
+import fanyImg from './img/fany.jpeg';
+import ambuImg from './img/ambu.jpeg';
+import andyChildrenImg from './img/andyChildren.jpeg';
+import elpatronImg from './img/elpatron.jpeg';
+import hermanoFanyImg from './img/sandro.jpeg';
+import lachinaImg from './img/lachina.jpeg';
+import mariluImg from './img/marilu.jpeg';
+import pameImg from './img/pame.jpeg';
+import pinkyImg from './img/pinky.jpeg';
+import rastaImg from './img/elvia.jpeg';
+import xioImg from './img/xio.jpeg';
+import yasminImg from './img/yasmin.jpeg';
+import saraImg from './img/sara.jpeg';
+
 function App() {
   const [people, setPeople] = useState([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -21,6 +43,29 @@ function App() {
     '🌟 Prize 8',
   ];
 
+  // Demo data for testing
+  const demoPeople = [
+    { id: 'demo-1', name: 'Axel', img: axelImg },
+    { id: 'demo-2', name: 'Karla', img: karlaImg },
+    { id: 'demo-3', name: 'Ady', img: adyImg },
+    { id: 'demo-4', name: 'Andrea', img: andreaImg },
+    { id: 'demo-5', name: 'Mayi', img: mayiImg },
+    { id: 'demo-6', name: 'Ken', img: kenImg },
+    { id: 'demo-7', name: 'Tavo', img: tavoImg },
+    { id: 'demo-8', name: 'Fany', img: fanyImg },
+    { id: 'demo-9', name: 'Ambu', img: ambuImg },
+    { id: 'demo-10', name: 'Andy Children', img: andyChildrenImg },
+    { id: 'demo-11', name: 'El Patron', img: elpatronImg },
+    { id: 'demo-12', name: 'Hermano Fany', img: hermanoFanyImg },
+    { id: 'demo-13', name: 'La China', img: lachinaImg },
+    { id: 'demo-14', name: 'Marilu', img: mariluImg },
+    { id: 'demo-15', name: 'Pame', img: pameImg },
+    { id: 'demo-16', name: 'Pinky', img: pinkyImg },
+    { id: 'demo-17', name: 'Rasta', img: rastaImg },
+    { id: 'demo-18', name: 'Xio', img: xioImg },
+    { id: 'demo-19', name: 'Yasmin', img: yasminImg },
+  ];
+
   // Fetch people from Firestore on component mount
   useEffect(() => {
     const fetchPeople = async () => {
@@ -30,9 +75,57 @@ function App() {
           id: doc.id,
           ...doc.data()
         }));
-        setPeople(peopleData);
+        
+        // Create a map of names to images
+        const imageMap = {
+          'axel': axelImg,
+          'sara': saraImg,
+          'karla': karlaImg,
+          'ady': adyImg,
+          'andrea': andreaImg,
+          'mayi': mayiImg,
+          'ken': kenImg,
+          'tavo': tavoImg,
+          'fany': fanyImg,
+          'ambu': ambuImg,
+          'andy': andyChildrenImg,
+          'andychildren': andyChildrenImg,
+          'el patron': elpatronImg,
+          'elpatron': elpatronImg,
+          'hermano fany': hermanoFanyImg,
+          'hermanofany': hermanoFanyImg,
+          'sandro': hermanoFanyImg,
+          'la china': lachinaImg,
+          'lachina': lachinaImg,
+          'marilu': mariluImg,
+          'pame': pameImg,
+          'pinky': pinkyImg,
+          'rasta': rastaImg,
+          'elvia': rastaImg,
+          'xio': xioImg,
+          'yasmin': yasminImg,
+        };
+        
+        // Use Firebase data if available, otherwise use demo data
+        if (peopleData.length > 0) {
+          // Assign images based on name match
+          const peopleWithImages = peopleData.map(person => {
+            const nameLower = person.name.toLowerCase().trim();
+            const img = imageMap[nameLower] || null;
+            return {
+              ...person,
+              img
+            };
+          });
+          console.log('Fetched people with images:', peopleWithImages);
+          setPeople(peopleWithImages);
+        } else {
+          console.log('No Firebase data found, using demo data');
+          setPeople(demoPeople);
+        }
       } catch (error) {
-        console.error('Error fetching people:', error);
+        console.error('Error fetching people, using demo data:', error);
+        setPeople(demoPeople);
       } finally {
         setLoading(false);
       }

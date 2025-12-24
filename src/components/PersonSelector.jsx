@@ -46,13 +46,29 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
               }
             `}
           >
-            {selectedPerson?.id === person.id ? (
-              <UserCheck className="w-5 h-5 text-purple-600 flex-shrink-0" />
+            {/* Avatar Image */}
+            {person.img ? (
+              <img 
+                src={person.img} 
+                alt={person.name}
+                className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 flex-shrink-0"
+              />
             ) : (
-              <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <span className="text-gray-500 font-bold text-sm">
+                  {person.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
             )}
+            
+            {/* Selection Indicator */}
+            {selectedPerson?.id === person.id && (
+              <UserCheck className="w-5 h-5 text-purple-600 flex-shrink-0" />
+            )}
+            
+            {/* Person Name */}
             <span className={`
-              font-medium text-left
+              font-medium text-left flex-1
               ${
                 selectedPerson?.id === person.id
                   ? 'text-purple-700'
