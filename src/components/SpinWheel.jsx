@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { RotateCw, Trophy, AlertCircle, Loader } from 'lucide-react';
 
-function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
+function SpinWheel({ prizes, selectedPerson, onSpinComplete, allPeople }) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState(null);
@@ -19,20 +19,20 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
     '#85C1E2', // Sky Blue
   ];
 
-  // Build the display list of prizes. If a person is selected, append them as an extra prize
-  const displayPrizes = selectedPerson ? [...prizes, `👤 ${selectedPerson.name}`] : prizes;
+  // Build the display list: all people except the selected person and those who already have a partner
+  const displayPrizes = selectedPerson 
+    ? allPeople
+        .filter(person => person.id !== selectedPerson.id && !person.tienePareja)
+        .map(person => `👤 ${person.name}`)
+    : [];
 
-  // Helper to get a color for a segment index. Person segment (last) gets a special color.
+  // Helper to get a color for a segment index
   const getColor = (index) => {
-    if (selectedPerson && index === displayPrizes.length - 1) {
-      // Highlight the person with a distinct gradient-friendly color
-      return '#6C5CE7'; // purple
-    }
     return baseColors[index % baseColors.length];
   };
 
   const handleSpin = () => {
-    if (isSpinning || !selectedPerson) return;
+    if (isSpinning || !selectedPerson || displayPrizes.length === 0) return;
 
     setIsSpinning(true);
     setResult(null);
@@ -48,18 +48,13 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
 
     // Wait for animation to complete
     setTimeout(() => {
-      // Calculate winning segment using the display prizes (may include selected person)
+      // Calculate winning segment using the display prizes
       const segmentAngle = 360 / displayPrizes.length;
       const normalizedRotation = totalRotation % 360;
       let winningIndex = Math.floor((360 - normalizedRotation) / segmentAngle) % displayPrizes.length;
       let winningPrize = displayPrizes[winningIndex];
 
-      // If the winner is the selected person, pick a random prize from the base prizes instead
-      if (selectedPerson && winningPrize === `👤 ${selectedPerson.name}`) {
-        const randomPrizeIndex = Math.floor(Math.random() * prizes.length);
-        winningPrize = prizes[randomPrizeIndex];
-        console.log(`Person segment landed, but reassigned to: ${winningPrize}`);
-      }
+      console.log(`${selectedPerson.name} le dará regalos a: ${winningPrize}`);
 
       setResult(winningPrize);
       setIsSpinning(false);
@@ -71,14 +66,23 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
     <div>
       <div className="flex items-center gap-2 mb-4">
         <RotateCw className="w-6 h-6 text-purple-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Spin the Wheel</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Gira la Ruleta</h2>
       </div>
 
       {!selectedPerson && (
         <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
           <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
           <p className="text-yellow-800 text-sm">
-            Please select a person before spinning the wheel
+            Por favor selecciona una persona antes de girar la ruleta
+          </p>
+        </div>
+      )}
+
+      {selectedPerson && displayPrizes.length === 0 && (
+        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <p className="text-red-800 text-sm">
+            No hay personas disponibles sin pareja asignada
           </p>
         </div>
       )}
@@ -147,11 +151,11 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
         {/* Spin Button */}
         <button
           onClick={handleSpin}
-          disabled={isSpinning || !selectedPerson}
+          disabled={isSpinning || !selectedPerson || displayPrizes.length === 0}
           className={`
             mt-8 px-8 py-3 rounded-lg font-bold text-lg transition-all
             ${
-              isSpinning || !selectedPerson
+              isSpinning || !selectedPerson || displayPrizes.length === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-lg hover:shadow-xl'
             }
@@ -160,12 +164,12 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
           {isSpinning ? (
             <span className="flex items-center gap-2">
               <Loader className="w-5 h-5 animate-spin" />
-              Spinning...
+              Girando...
             </span>
           ) : (
             <span className="flex items-center gap-2">
               <RotateCw className="w-5 h-5" />
-              Spin the Wheel!
+              ¡Girar la Ruleta!
             </span>
           )}
         </button>
@@ -176,7 +180,7 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete }) {
             <div className="flex items-center gap-3">
               <Trophy className="w-8 h-8 text-white" />
               <div>
-                <p className="text-white font-bold text-xl">Winner!</p>
+                <p className="text-white font-bold text-xl">¡{selectedPerson.name} le dará regalos a!</p>
                 <p className="text-white text-lg">{result}</p>
               </div>
             </div>

@@ -5,7 +5,7 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Loader className="w-12 h-12 text-purple-600 animate-spin mb-4" />
-        <p className="text-gray-600">Loading people...</p>
+        <p className="text-gray-600">Cargando personas...</p>
       </div>
     );
   }
@@ -15,7 +15,7 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
       <div className="flex flex-col items-center justify-center py-12">
         <Users className="w-16 h-16 text-gray-300 mb-4" />
         <p className="text-gray-600 text-center">
-          No people found. Add people to the 'people' collection in Firestore.
+          No se encontraron personas. Agrega personas a la colección 'people' en Firestore.
         </p>
       </div>
     );
@@ -25,11 +25,11 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-6 h-6 text-purple-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Select a Person</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Selecciona una Persona</h2>
       </div>
       
       <p className="text-gray-600 mb-4 text-sm">
-        Choose someone to spin the wheel
+        Elige a alguien para girar la ruleta
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -51,11 +51,11 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
               <img 
                 src={person.img} 
                 alt={person.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 flex-shrink-0"
+                className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 flex-shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                <span className="text-gray-500 font-bold text-sm">
+              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <span className="text-gray-500 font-bold text-2xl">
                   {person.name.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -84,7 +84,7 @@ function PersonSelector({ people, selectedPerson, onSelectPerson, loading }) {
       {selectedPerson && (
         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-green-800 text-sm font-medium">
-            ✓ Selected: {selectedPerson.name}
+            ✓ Seleccionado: {selectedPerson.name}
           </p>
         </div>
       )}

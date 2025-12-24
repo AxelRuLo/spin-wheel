@@ -33,14 +33,14 @@ function App() {
 
   // Define default prizes
   const prizes = [
-    '🎁 Prize 1',
-    '🎊 Prize 2',
-    '🎉 Prize 3',
-    '🏆 Prize 4',
-    '⭐ Prize 5',
-    '💎 Prize 6',
-    '🎯 Prize 7',
-    '🌟 Prize 8',
+    '🎁 Premio 1',
+    '🎊 Premio 2',
+    '🎉 Premio 3',
+    '🏆 Premio 4',
+    '⭐ Premio 5',
+    '💎 Premio 6',
+    '🎯 Premio 7',
+    '🌟 Premio 8',
   ];
 
   // Demo data for testing
@@ -120,11 +120,11 @@ function App() {
           console.log('Fetched people with images:', peopleWithImages);
           setPeople(peopleWithImages);
         } else {
-          console.log('No Firebase data found, using demo data');
+          console.log('No se encontraron datos en Firebase, usando datos de demostración');
           setPeople(demoPeople);
         }
       } catch (error) {
-        console.error('Error fetching people, using demo data:', error);
+        console.error('Error al obtener personas, usando datos de demostración:', error);
         setPeople(demoPeople);
       } finally {
         setLoading(false);
@@ -138,15 +138,91 @@ function App() {
   const handleSpinComplete = async (result) => {
     if (selectedPerson) {
       try {
+        // Extract the person name from the result (format: "👤 Name")
+        const recipientName = result.replace('👤 ', '');
+        const recipient = people.find(p => p.name === recipientName);
+        
+        if (recipient) {
+          // Mark ONLY the recipient (who came out in the wheel) as having a partner
+          const db = (await import('./firebase')).db;
+          const { doc, updateDoc } = await import('firebase/firestore');
+          
+          // Update ONLY the recipient
+          await updateDoc(doc(db, 'people', recipient.id), {
+            tienePareja: true,
+            parejaAsignada: selectedPerson.name,
+            parejaId: selectedPerson.id
+          });
+          
+          console.log(`${selectedPerson.name} le dará regalos a ${recipient.name}`);
+        }
+        
+        // Save to history
         await addDoc(collection(db, 'spinHistory'), {
           personId: selectedPerson.id,
           personName: selectedPerson.name,
           result: result,
+          recipientName: recipientName,
+          recipientId: recipient?.id,
           timestamp: serverTimestamp(),
         });
-        console.log('Spin result saved to history');
+        
+        console.log('Resultado del giro guardado en el historial');
+        
+        // Refresh the people list to update the UI
+        // const querySnapshot = await getDocs(collection(db, 'people'));
+        // const updatedPeopleData = querySnapshot.docs.map(doc => ({
+        //   id: doc.id,
+        //   ...doc.data()
+        // }));
+        
+        // Assign images
+        // const imageMap = {
+        //   'axel': axelImg,
+        //   'karla': karlaImg,
+        //   'ady': adyImg,
+        //   'andrea': andreaImg,
+        //   'mayi': mayiImg,
+        //   'ken': kenImg,
+        //   'tavo': tavoImg,
+        //   'fany': fanyImg,
+        //   'ambu': ambuImg,
+        //   'andy children': andyChildrenImg,
+        //   'andychildren': andyChildrenImg,
+        //   'el patron': elpatronImg,
+        //   'elpatron': elpatronImg,
+        //   'hermano fany': hermanoFanyImg,
+        //   'hermanofany': hermanoFanyImg,
+        //   'sandro': hermanoFanyImg,
+        //   'la china': lachinaImg,
+        //   'lachina': lachinaImg,
+        //   'marilu': mariluImg,
+        //   'pame': pameImg,
+        //   'pinky': pinkyImg,
+        //   'rasta': rastaImg,
+        //   'elvia': rastaImg,
+        //   'xio': xioImg,
+        //   'yasmin': yasminImg,
+        // };
+        
+        // const peopleWithImages = updatedPeopleData.map(person => {
+        //   const nameLower = person.name.toLowerCase().trim();
+        //   const img = imageMap[nameLower] || null;
+        //   return {
+        //     ...person,
+        //     img
+        //   };
+        // });
+        
+        // // Update people first, then clear selection
+        // setPeople(peopleWithImages);
+        // // Use setTimeout to ensure the state update completes before clearing
+        // setTimeout(() => {
+        //   setSelectedPerson(null);
+        // }, 0);
+        
       } catch (error) {
-        console.error('Error saving spin result:', error);
+        console.error('Error al guardar el resultado del giro:', error);
       }
     }
   };
@@ -155,7 +231,7 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-8 drop-shadow-lg">
-          🎡 Spin Wheel
+          🎡 Ruleta de la Suerte
         </h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -175,6 +251,7 @@ function App() {
               prizes={prizes}
               selectedPerson={selectedPerson}
               onSpinComplete={handleSpinComplete}
+              allPeople={people}
             />
           </div>
         </div>
