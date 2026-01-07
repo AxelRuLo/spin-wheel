@@ -25,6 +25,7 @@ import rastaImg from './img/elvia.jpeg';
 import xioImg from './img/xio.jpeg';
 import yasminImg from './img/yasmin.jpeg';
 import saraImg from './img/sara.jpeg';
+import jabaliImg from './img/jabali.jpeg';
 
 function App() {
   const [people, setPeople] = useState([]);
@@ -64,6 +65,7 @@ function App() {
     { id: 'demo-17', name: 'Rasta', img: rastaImg },
     { id: 'demo-18', name: 'Xio', img: xioImg },
     { id: 'demo-19', name: 'Yasmin', img: yasminImg },
+    { id: 'demo-19', name: 'Yasmin', img: yasminImg },
   ];
 
   // Fetch people from Firestore on component mount
@@ -88,7 +90,8 @@ function App() {
           'tavo': tavoImg,
           'fany': fanyImg,
           'ambu': ambuImg,
-          'andy': andyChildrenImg,
+          'dulce': andyChildrenImg,
+          'jabali': jabaliImg,
           'andychildren': andyChildrenImg,
           'el patron': elpatronImg,
           'elpatron': elpatronImg,
@@ -143,15 +146,22 @@ function App() {
         const recipient = people.find(p => p.name === recipientName);
         
         if (recipient) {
-          // Mark ONLY the recipient (who came out in the wheel) as having a partner
+          // Mark the recipient as having a partner AND mark the spinner as having spun
           const db = (await import('./firebase')).db;
           const { doc, updateDoc } = await import('firebase/firestore');
           
-          // Update ONLY the recipient
+          // Update the recipient (who will receive gifts)
           await updateDoc(doc(db, 'people', recipient.id), {
             tienePareja: true,
             parejaAsignada: selectedPerson.name,
             parejaId: selectedPerson.id
+          });
+          
+          // Mark the person who spun as having already spun
+          await updateDoc(doc(db, 'people', selectedPerson.id), {
+            yaGiro: true,
+            leTocoRegalarA: recipient.name,
+            leTocoRegalarAId: recipient.id
           });
           
           console.log(`${selectedPerson.name} le dará regalos a ${recipient.name}`);

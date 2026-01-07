@@ -73,7 +73,7 @@ function SpinWheel({ prizes, selectedPerson, onSpinComplete, allPeople }) {
         <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
           <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
           <p className="text-yellow-800 text-sm">
-            Por favor selecciona una persona antes de girar la ruleta
+            Por favor selecciona quien eres antes de girar la ruleta
           </p>
         </div>
       )}
